@@ -232,7 +232,7 @@ func (d *decoder) parseIHDR(length uint32) error {
 	if d.cb == cbInvalid {
 		return UnsupportedError(fmt.Sprintf("bit depth %d, color type %d", d.tmp[8], d.tmp[9]))
 	}
-	d.a.Frames[0].width, d.a.Frames[0].height = int(w), int(h)
+	d.a.Frames[0].Width, d.a.Frames[0].Height = int(w), int(h)
 	return d.verifyChecksum()
 }
 
@@ -445,15 +445,15 @@ func (d *decoder) readImagePass(r io.Reader, pass int, allocateOnly bool) (image
 		width    int
 		height   int
 	)
-	width = d.a.Frames[d.frame_index].width
-	height = d.a.Frames[d.frame_index].height
+	width = d.a.Frames[d.frame_index].Width
+	height = d.a.Frames[d.frame_index].Height
 	if d.interlace == itAdam7 && !allocateOnly {
 		p := interlacing[pass]
 		// Add the multiplication factor and subtract one, effectively rounding up.
 		width = (width - p.xOffset + p.xFactor - 1) / p.xFactor
 		height = (height - p.yOffset + p.yFactor - 1) / p.yFactor
-		// A PNG image can't have zero width or height, but for an interlaced
-		// image, an individual pass might have zero width or height. If so, we
+		// A PNG image can't have zero Width or Height, but for an interlaced
+		// image, an individual pass might have zero Width or Height. If so, we
 		// shouldn't even read a per-row filter type byte, so return early.
 		if width == 0 || height == 0 {
 			return nil, nil
@@ -555,7 +555,7 @@ func (d *decoder) readImagePass(r io.Reader, pass int, allocateOnly bool) (image
 		case ftAverage:
 			// The first column has no column to the left of it, so it is a
 			// special case. We know that the first column exists because we
-			// check above that width != 0, and so len(cdat) != 0.
+			// check above that Width != 0, and so len(cdat) != 0.
 			for i := 0; i < bytesPerPixel; i++ {
 				cdat[i] += pdat[i] / 2
 			}
@@ -893,8 +893,8 @@ func (d *decoder) parsefcTL(length uint32) (err error) {
 	}
 
 	d.a.Frames[d.frame_index].IsDefault = false
-	d.a.Frames[d.frame_index].width = int(int32(binary.BigEndian.Uint32(d.tmp[4:8])))
-	d.a.Frames[d.frame_index].height = int(int32(binary.BigEndian.Uint32(d.tmp[8:12])))
+	d.a.Frames[d.frame_index].Width = int(int32(binary.BigEndian.Uint32(d.tmp[4:8])))
+	d.a.Frames[d.frame_index].Height = int(int32(binary.BigEndian.Uint32(d.tmp[8:12])))
 	d.a.Frames[d.frame_index].XOffset = int(binary.BigEndian.Uint32(d.tmp[12:16]))
 	d.a.Frames[d.frame_index].YOffset = int(binary.BigEndian.Uint32(d.tmp[16:20]))
 	d.a.Frames[d.frame_index].DelayNumerator = binary.BigEndian.Uint16(d.tmp[20:22])
@@ -1131,8 +1131,8 @@ func DecodeConfig(r io.Reader) (image.Config, error) {
 	}
 	return image.Config{
 		ColorModel: cm,
-		Width:      int(d.a.Frames[0].width),
-		Height:     int(d.a.Frames[0].height),
+		Width:      int(d.a.Frames[0].Width),
+		Height:     int(d.a.Frames[0].Height),
 	}, nil
 }
 
